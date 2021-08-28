@@ -1,0 +1,13 @@
+C:\Users\Abhi\OneDrive - Queensland University of Technology\IFN563 Ood\Assignment_game\bin\Debug\netcoreapp3.1\Assignment_game.exe
+C:\Users\Abhi\OneDrive - Queensland University of Technology\IFN563 Ood\Assignment_game\bin\Debug\netcoreapp3.1\Assignment_game.deps.json
+C:\Users\Abhi\OneDrive - Queensland University of Technology\IFN563 Ood\Assignment_game\bin\Debug\netcoreapp3.1\Assignment_game.runtimeconfig.json
+C:\Users\Abhi\OneDrive - Queensland University of Technology\IFN563 Ood\Assignment_game\bin\Debug\netcoreapp3.1\Assignment_game.runtimeconfig.dev.json
+C:\Users\Abhi\OneDrive - Queensland University of Technology\IFN563 Ood\Assignment_game\bin\Debug\netcoreapp3.1\Assignment_game.dll
+C:\Users\Abhi\OneDrive - Queensland University of Technology\IFN563 Ood\Assignment_game\bin\Debug\netcoreapp3.1\Assignment_game.pdb
+C:\Users\Abhi\OneDrive - Queensland University of Technology\IFN563 Ood\Assignment_game\obj\Debug\netcoreapp3.1\Assignment_game.csproj.AssemblyReference.cache
+C:\Users\Abhi\OneDrive - Queensland University of Technology\IFN563 Ood\Assignment_game\obj\Debug\netcoreapp3.1\Assignment_game.AssemblyInfoInputs.cache
+C:\Users\Abhi\OneDrive - Queensland University of Technology\IFN563 Ood\Assignment_game\obj\Debug\netcoreapp3.1\Assignment_game.AssemblyInfo.cs
+C:\Users\Abhi\OneDrive - Queensland University of Technology\IFN563 Ood\Assignment_game\obj\Debug\netcoreapp3.1\Assignment_game.csproj.CoreCompileInputs.cache
+C:\Users\Abhi\OneDrive - Queensland University of Technology\IFN563 Ood\Assignment_game\obj\Debug\netcoreapp3.1\Assignment_game.dll
+C:\Users\Abhi\OneDrive - Queensland University of Technology\IFN563 Ood\Assignment_game\obj\Debug\netcoreapp3.1\Assignment_game.pdb
+C:\Users\Abhi\OneDrive - Queensland University of Technology\IFN563 Ood\Assignment_game\obj\Debug\netcoreapp3.1\Assignment_game.genruntimeconfig.cache
