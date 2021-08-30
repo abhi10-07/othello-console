@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Assignment_game
 {
-    class Game_mode
+    class Game_mode : Game
     {
         public string player;
         public string other_player;
@@ -13,13 +13,12 @@ namespace Assignment_game
 
         Match_state ms_obj = new Match_state();
         Ui_config ui_obj = new Ui_config();
-        Game g_obj = new Game();
 
         public string[,] bd;
 
         public void user_command(string userEntry)
         {
-            bd = g_obj.default_board();
+            bd = default_board();
             switch (userEntry)
             {
                 case "N": // New game
@@ -31,7 +30,7 @@ namespace Assignment_game
                 case "O": // initialize game
                     {
                         Write("\n Enter player name:");
-                        player_name = ReadLine();
+                        player_name = ReadLine().ToUpper();
                         player = "B";
                         other_player = "W";
                         other_player_name = "Computer";
@@ -41,11 +40,11 @@ namespace Assignment_game
                 case "T":
                     {
                         Write("\n Enter player1 name:");
-                        player_name = ReadLine();
+                        player_name = ReadLine().ToUpper();
                         player = "B";
                         Write("\n Enter player2 name:");
                         other_player = "W";
-                        other_player_name = ReadLine();
+                        other_player_name = ReadLine().ToUpper();
 
                         break;
                     }

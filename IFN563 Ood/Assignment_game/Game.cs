@@ -8,6 +8,9 @@ namespace Assignment_game
     {
         const int BOARD_SIZE = 8;
         string[,] board = new string[BOARD_SIZE, BOARD_SIZE];
+        protected List<string> history = new List<string>();
+
+        Ui_config ui_obj = new Ui_config();
 
         // initial empty board
         public string[,] default_board(int len = BOARD_SIZE)
@@ -52,8 +55,7 @@ namespace Assignment_game
 
             int[] score = get_score(b);
             WriteLine("\nCurrent score:");
-            WriteLine("White(W):" + score[0]);
-            WriteLine("Black(B):" + score[1]);
+            WriteLine("White(W) " + score[0] + " - " + score[1] +  " Black(B)");
 
         }
 
@@ -80,7 +82,6 @@ namespace Assignment_game
         public bool is_board_full(string[,] b)
         {
             bool full = true;
-            WriteLine("calling after?");
             for (int i = 0; i < BOARD_SIZE; i++)
             {
                 for (int j = 0; j < BOARD_SIZE; j++)
@@ -93,25 +94,55 @@ namespace Assignment_game
             return full;
         }
 
-        public string[,] prompt_move(string[,] b, string player, string player_name)
+        public bool is_legal_move(string[,] b, int r, int c, string player)
         {
-            WriteLine(player_name + "'s (" + player + ") turn");
+            return b[r, c] == " ";
+        }
+
+        public string[,] prompt_move(string[,] b, string player, string name)
+        {
+            WriteLine(name + "'s (" + player + ") turn");
             List<string> possibilities = new List<string>();
             List<string> flip = new List<string>();
+            string menu_step;
             possibilities = get_possible_moves(b, player);
 
             if (possibilities.Count == 0)
                 return b; // game over
 
+            WriteLine("Possible valid moves:");
+            foreach (var item in possibilities)
+            {
+                Write(" (" + item + ")");
+            }
+
+            WriteLine("\nAt any point enter 99 for the MENU");
+
             bool check = true;
             int xmove = -1, ymove = 1;
             do
-            {
-                Write("Enter a x coordinate(column):");
+            {               
+                Write("\nEnter a x coordinate(column " + char.ConvertFromUtf32(0x2192) + "):");
                 xmove = Convert.ToInt32(ReadLine());
 
-                Write("Enter a y coordinate(row):");
+                if(xmove == 99)
+                {
+                    do
+                    {
+                        ui_obj.displayCategory(3);
+                        menu_step = ReadLine().ToUpper();
+
+                    } while (!ui_obj.check_user_selection(menu_step));
+                    
+                }
+
+                Write("Enter a y coordinate(row) " + char.ConvertFromUtf32(0x2193) + "):");
                 ymove = Convert.ToInt32(ReadLine());
+
+                if (ymove == 99)
+                {
+                    ui_obj.displayCategory(3);
+                }
 
                 string move = xmove + "," + ymove;
 
@@ -126,34 +157,29 @@ namespace Assignment_game
 
             } while (!check);
 
-            WriteLine("Player move: " + xmove +" | "+ ymove + " | " + player);
-            flip = piece_to_flip(b, xmove, ymove, player);
+            flip = get_pieces_to_flip(b, xmove, ymove, player);
             board[xmove, ymove] = player;
+            store_match_history(xmove, ymove);
 
-            board = flip_pieces(b, flip, player);
+            board = flip_pieces(board, flip, player);
 
-            return b;
-
+            return board;
         }
 
-        public List<String> get_possible_moves(string[,] b, string player)
+        public List<string> get_possible_moves(string[,] b, string player)
         {
-            //string[] moves = new string[b.Length*b.Length];
             List<string> moves = new List<string>();
-
             for (int i = 0; i < BOARD_SIZE; i++)
             {
                 for (int j = 0; j < BOARD_SIZE; j++)
                 {
-                    if (!is_legal_move(b, i, j, player))
+                    if (!is_legal_move(b, j, i, player))
                         continue;
                     else
                     {
-                        List<string> flipLength = piece_to_flip(b, i, j, player);
-                        if (flipLength.Count > 0)
-                        {
+                        List<string> temp = get_pieces_to_flip(b, i, j, player);
+                        if (temp.Count > 0)
                             moves.Add(i + "," + j);
-                        } 
                     }
                 }
             }
@@ -161,60 +187,71 @@ namespace Assignment_game
             return moves;
         }
 
-        public bool is_legal_move(string[,] b, int x_co, int y_co, string player)
+        public List<string> get_pieces_to_flip(string[,] b, int i, int j, string player)
         {
-            return b[x_co, y_co] == " ";
+            List<string> flip = new List<string>();
+
+            flip.AddRange(get_included_pieces(b, i, j, 1, 1, player));
+            flip.AddRange(get_included_pieces(b, i, j, 1, -1, player));
+            flip.AddRange(get_included_pieces(b, i, j, -1, 1, player));
+            flip.AddRange(get_included_pieces(b, i, j, 0, 1, player));
+            flip.AddRange(get_included_pieces(b, i, j, 0, -1, player));
+            flip.AddRange(get_included_pieces(b, i, j, 1, 0, player));
+            flip.AddRange(get_included_pieces(b, i, j, -1, 0, player));
+            flip.AddRange(get_included_pieces(b, i, j, -1, -1, player));
+
+            List<string> uniqueList = new List<string>();
+            Dictionary<string, int> uniqueStore = new Dictionary<string, int>();
+
+            foreach (string currValue in flip)
+            {
+                if (!uniqueStore.ContainsKey(currValue))
+                {
+                    uniqueStore.Add(currValue, 0);
+                    uniqueList.Add(currValue);
+                }
+            }
+
+            return uniqueList;
         }
 
         public List<string> get_included_pieces(string[,] b, int xstart, int ystart, int xdir, int ydir, string player)
         {
             List<string> included = new List<string>();
-            string other_player;
-            int xcurr, ycurr;
+            string other_player = "";
 
-            if (player == "W")
-                other_player = "B";
-            else
+            if (player == "B")
                 other_player = "W";
+            else
+                other_player = "B";
 
-            for (int k = 1; k<BOARD_SIZE; k++)
+            // distance in 7 spaces
+            int xcurrent, ycurrent;
+            for (int k = 1; k < BOARD_SIZE; k++)
             {
-                xcurr = xstart + k * xdir;
-                ycurr = ystart + k * ydir;
+                xcurrent = xstart + k * xdir;
+                ycurrent = ystart + k * ydir;
 
-                if (xcurr < 0 || xcurr >= BOARD_SIZE || ycurr < 0 || ycurr >= BOARD_SIZE)
-                    return included;
-
-                if (String.Equals(b[ycurr, xcurr].Trim(), other_player.Trim()) && b[ycurr, xcurr] != " ")
+                if (xcurrent < 0 || xcurrent >= BOARD_SIZE || ycurrent < 0 || ycurrent >= BOARD_SIZE)
                 {
-                    included.Add(xcurr + "," + ycurr);
-                }   
-                else if (b[ycurr, xcurr] == player)
+                    included.Clear();
+                    return included;
+                }
+
+
+                if (b[xcurrent, ycurrent] == other_player)
+                    included.Add(xcurrent + "," + ycurrent);
+                else if (b[xcurrent, ycurrent] == player)
                     return included;
                 else
+                {
+                    included.Clear();
                     return included;
+                }
             }
-            
+
+            included.Clear();
             return included;
-        }
-
-        public List<String> piece_to_flip(string[,] b, int x, int y, string player)
-        {
-            List<string> flip = new List<string>();
-
-            // check for (direction) all 8 pieces around the main. ;
-            flip.AddRange(get_included_pieces(b, x, y, 1, 1, player));
-            flip.AddRange(get_included_pieces(b, x, y, 1, -1, player));
-            flip.AddRange(get_included_pieces(b, x, y, 1, -1, player));
-            flip.AddRange(get_included_pieces(b, x, y, -1, 1, player));
-            flip.AddRange(get_included_pieces(b, x, y, 0, 1, player));
-            flip.AddRange(get_included_pieces(b, x, y, 0,-1, player));
-            flip.AddRange(get_included_pieces(b, x, y, 1, 0, player));
-            flip.AddRange(get_included_pieces(b, x, y, -1, 0, player));
-            flip.AddRange(get_included_pieces(b, x, y, -1, -1, player));
-
-
-            return flip;
         }
 
         public string[,] flip_pieces(string[,] b, List<string> flip, string player)
@@ -223,46 +260,22 @@ namespace Assignment_game
             {
                 string[] coordinates = new string[2];
                 coordinates = item.Split(',');
-                if(coordinates.Length == 2)
-                {
-                    WriteLine("flip co " + Convert.ToInt32(coordinates[0]) + " | " + Convert.ToInt32(coordinates[1]));
-                    b[Convert.ToInt32(coordinates[0]), Convert.ToInt32(coordinates[1])] = player;
-                }
-                
-            }
-
-            return b;
-        }
-
-        public string[,] comp_move(string[,] b, string player)
-        {
-            List<string> possibilities = new List<string>();
-            possibilities = get_possible_moves(b, player);
-
-            if (possibilities.Count == 0)
-                return b; // game over
-
-            string[] coordinates = new string[2];
-
-            // get any random index from possiblities and make a move
-            foreach (var item in possibilities)
-            {
-                coordinates = item.Split(',');
                 if (coordinates.Length == 2)
                 {
-                    WriteLine("flip co " + Convert.ToInt32(coordinates[0]) + " | " + Convert.ToInt32(coordinates[1]));
+                    //WriteLine("flip co " + Convert.ToInt32(coordinates[0]) + " | " + Convert.ToInt32(coordinates[1]));
                     b[Convert.ToInt32(coordinates[0]), Convert.ToInt32(coordinates[1])] = player;
                 }
             }
 
-
-            
-
             return b;
         }
 
-
-
+        // store user moves in Array
+        public void store_match_history(int xmove, int ymove)
+        {
+            string temp = xmove + "," + ymove;
+            history.Add(temp);
+        }
 
     }
 }

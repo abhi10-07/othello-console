@@ -68,5 +68,14 @@ namespace Assignment_game
             }
 
         } // method displayCategory
+
+        public bool check_user_selection(string step)
+        {
+            bool valid = false;
+            if (Array.IndexOf(codesArray, step) >= 0)
+                valid = true;
+
+            return valid;
+        }
     }
 }

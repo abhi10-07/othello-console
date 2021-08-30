@@ -1,42 +1,51 @@
 ﻿using System;
 using static System.Console;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Assignment_game
 {
     /* class to store move, save and load match*/
-    class Match_state
+    class Match_state: Game
     {
         string SAVEPATH = System.IO.Path.Combine(@"C:\Users\Abhi\OneDrive - Queensland University of Technology\IFN563 Ood", "saved_games");
-        string TEMPSAVEFILE = "current_game.txt";
 
         string[] files;
-        const char DELIM = ',';
+        const char DELIM = '|';
         
         //Method to save game
         public void save_game(string filename, char overwrite = 'N')
         {
-            string tempfilepath = System.IO.Path.Combine(SAVEPATH, TEMPSAVEFILE);
 
             string filepath = System.IO.Path.Combine(SAVEPATH, filename);
- 
+            FileStream fs = new FileStream(filepath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+            //Pass the filepath and filename to the StreamWriter Constructor
+            StreamWriter sw = new StreamWriter(fs);
+
             if (!System.IO.File.Exists(filepath) || overwrite == 'Y')
             {
-                File.Copy(tempfilepath, filepath, true);
+                foreach (var item in history)
+                {
+                    sw.WriteLine(item + "|");
+                }
+
                 WriteLine("\n File {0} saved.", filename);
             }
             else
             {
-                if(overwrite == 'N')
+                if (overwrite == 'N')
                 {
                     WriteLine("\nFile \"{0}\" already exists.", filename);
                     WriteLine("\n Overwrite file? Y/N ");
                     overwrite = Convert.ToChar(ReadLine());
-                    if (overwrite == 'Y') 
+                    if (overwrite == 'Y')
                     {
-                        File.Copy(tempfilepath, filepath, true);
+                        foreach (var item in history)
+                        {
+                            sw.WriteLine(item + "|");
+                        }
                         WriteLine("\n File {0} saved.", filename);
-                    }                        
+                    }
                 }
 
                 return;
@@ -106,7 +115,9 @@ namespace Assignment_game
             StreamReader reader = new StreamReader(inFile);
             string recordIn;
             string[] moves;
-            
+
+            // take a count of each redo unod: undo is -1, redo is +1, temp file load and count and load
+
             recordIn = reader.ReadLine();
 
             while (recordIn != null)
